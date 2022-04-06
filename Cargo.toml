@@ -1,0 +1,9 @@
+[package]
+name = "heavensbot"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serenity = "0.10.10"
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+chrono = "0.4.19"
