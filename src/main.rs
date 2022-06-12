@@ -1,5 +1,6 @@
 mod commands;
 mod hook;
+mod group;
 
 use commands::*;
 use hook::*;
