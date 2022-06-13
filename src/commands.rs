@@ -1,3 +1,4 @@
+use std::ops::Index;
 use serenity::prelude::*;
 use serenity::{
     framework::standard::{
@@ -164,6 +165,34 @@ pub async fn help(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 
 #[command]
 pub async fn mute(_ctx: &Context, _msg: &Message, mut _args: Args) -> CommandResult {
+    if _args.is_empty() {
+        _msg.reply(&_ctx, "You need to mention someone to mute!").await?;
+    } else {
+        // Add role to the mentioned member
+        let user_id = u64::from(_args.single::<UserId>().unwrap());
+        let mut reason = _args.rest();
+
+        if reason.is_empty() {
+            reason = "No reason";
+        }
+
+        // get the muted role id
+        let role_id = u64::from(_ctx.http.get_guild(u64::from(_msg.guild_id.unwrap())).await.expect("Cannot get guild").roles.);
+
+        println!("{}", role_id);
+
+        match _msg.guild_id {
+            Some(guild_id) => {
+                let guild_id = u64::from(guild_id);
+                _ctx.http.add_member_role(guild_id, user_id, role_id).await.unwrap();
+            },
+            _ => {
+                _msg.reply(&_ctx.http, "Cannot get guild id").await.unwrap();
+
+                ()
+            },
+        }
+    }
     Ok(())
 }
 

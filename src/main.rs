@@ -79,7 +79,7 @@ fn _dispatch_error_no_macro<'fut>(
 
 #[tokio::main]
 async fn main() {
-    let token = "token";
+    let token = "Nzg1NTYzNDQwMjA1NzkxMjMy.GAGksG.zd_Y_DbcN6R0w9mOdT6bkC0MVu7MKkfntCevms";
     let http = Http::new_with_token(&token);
 
     let (owners, bot_id) = match http.get_current_application_info().await {
