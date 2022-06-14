@@ -7,3 +7,4 @@ edition = "2021"
 serenity = "0.10.10"
 tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
 chrono = "0.4.19"
+wikipedia = "0.3.4"

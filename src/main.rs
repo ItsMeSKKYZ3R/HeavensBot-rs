@@ -17,16 +17,13 @@ use serenity::{
     client::bridge::gateway::{GatewayIntents, ShardManager},
     framework::standard::{
         buckets::{LimitedFor},
-        DispatchError,
         StandardFramework,
     },
     http::Http,
     model::{
-        channel::Message,
         gateway::Ready,
     },
 };
-use serenity::{futures::future::BoxFuture, FutureExt};
 
 use tokio::sync::Mutex;
 
@@ -49,24 +46,6 @@ impl EventHandler for Handler {
     async fn ready(&self, _: Context, ready: Ready) {
         println!("{} is connected!", ready.user.name);
     }
-}
-
-fn _dispatch_error_no_macro<'fut>(
-    ctx: &'fut mut Context,
-    msg: &'fut Message,
-    error: DispatchError,
-) -> BoxFuture<'fut, ()> {
-    async move {
-        if let DispatchError::Ratelimited(info) = error {
-            if info.is_first_try {
-                let _ = msg
-                    .channel_id
-                    .say(&ctx.http, &format!("Try this again in {} seconds.", info.as_secs()))
-                    .await;
-            }
-        };
-    }
-        .boxed()
 }
 
 #[tokio::main]
@@ -110,7 +89,8 @@ async fn main() {
             .await_ratelimits(1)
             .delay_action(delay_action)).await
         .group(&GENERAL_GROUP)
-        .group(&MOD_GROUP);
+        .group(&MOD_GROUP)
+        .group(&FUN_GROUP);
 
     let mut client = Client::builder(&token)
         .event_handler(Handler)

@@ -74,11 +74,28 @@ pub async fn ban(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
 }
 
 #[command]
+pub async fn unban(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+    msg.channel_id.delete_message(&ctx.http.as_ref(), msg.id).await.expect("Failed to delete message");
+
+    if args.is_empty() {
+        msg.reply(&ctx, "You need to mention someone to unban!").await?;
+    }
+
+    let user_id = u64::from(args.single::<UserId>().unwrap());
+
+    let guild_id = u64::from(msg.guild_id.expect("Failed to get guild id"));
+
+    ctx.http.remove_ban(guild_id, user_id).await.expect("Failed to unban user");
+
+    Ok(())
+}
+
+#[command]
 pub async fn kick(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     msg.channel_id.delete_message(&ctx.http.as_ref(), msg.id).await.expect("Failed to delete message");
 
     if args.is_empty() {
-        msg.reply(&ctx, "You need to mention someone to ban!").await?;
+        msg.reply(&ctx, "You need to mention someone to kick!").await?;
     }
 
     let user_id = u64::from(args.single::<UserId>().unwrap());
@@ -245,6 +262,49 @@ pub async fn say(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
         msg.reply(&ctx, "You need to add a message that I should say.").await?;
     } else {
         msg.channel_id.send_message(&ctx.http, |m| m.content(args.message())).await.expect("Failed to send message");
+    }
+
+    Ok(())
+}
+
+#[command]
+pub async fn wiki(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+    if args.is_empty() {
+        msg.reply(&ctx, "You need to add a search query and a language.").await?;
+    } else {
+        msg.channel_id.delete_message(&ctx.http.as_ref(), msg.id).await.expect("Failed to delete message");
+
+        let lang = args.single::<String>().expect("Failed to get language");
+
+        if lang.len() > 2 {
+            msg.channel_id.send_message(&ctx, |m| {
+                m.content("The language must be 2 characters long.")
+            })
+                .await
+                .expect("Failed to send message");
+        } else {
+            let search_query = args.rest();
+
+            let mut wiki = wikipedia::Wikipedia::<wikipedia::http::default::Client>::default();
+
+            wiki.language = lang;
+
+            let page = wiki.page_from_title(search_query.to_owned());
+
+            let content = page.get_content().expect("Failed to get content");
+
+            msg.channel_id
+                .send_message(&ctx.http, |m| {
+                    m.content("")
+                        .embed(|e| {
+                            e.title(format!("Result for {}", search_query))
+                                .description(format!("{}...",  if content.len() >= 1997 { &content[..1997] } else { &content[..] }))
+                                .footer(|f| f.text("©️ HeavensBot 2022"))
+                                .timestamp(chrono::Utc::now())
+                                .color(Colour::DARK_GREEN)
+                        })
+                }).await.expect("Failed to send message");
+        }
     }
 
     Ok(())
