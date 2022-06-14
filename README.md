@@ -10,6 +10,7 @@ HeavensBot contains a few commands to help you manage your server.
 - **`!kick`**: Kick the mentionned member.
 - **`!mute`**: Mute the mentionned member.
 - **`!unmute`**: Unmute the mentionned member.
+- **``!say``**: Allows you to make the bot say something.
 
 # Contribute to the bot
 
