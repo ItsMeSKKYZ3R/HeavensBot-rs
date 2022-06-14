@@ -1,10 +1,10 @@
 use serenity::framework::standard::macros::group;
-use crate::commands::*;
+pub use crate::commands::*;
 
 #[group]
-#[commands(avatar, ping, help)]
-struct General;
+#[commands(avatar, ping, help, say)]
+pub struct General;
 
 #[group]
 #[commands(ban, kick, mute, unmute)]
-struct Mod;
+pub struct Mod;

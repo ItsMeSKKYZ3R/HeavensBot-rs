@@ -15,6 +15,8 @@ use std::time::Instant;
 
 #[command]
 async fn avatar(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+    msg.channel_id.delete_message(&ctx.http.as_ref(), msg.id).await.expect("Failed to delete message");
+
     let face = match args.single::<UserId>() {
         Ok(user_id) => user_id.to_user(ctx).await?.face(),
         Err(_) => msg.author.face(),
@@ -27,6 +29,8 @@ async fn avatar(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
 
 #[command]
 pub async fn ping(ctx: &Context, msg: &Message) -> CommandResult {
+    msg.channel_id.delete_message(&ctx.http.as_ref(), msg.id).await.expect("Failed to delete message");
+
     let before = Instant::now();
     let mut m = msg.channel_id.say(&ctx.http, "pong!").await?;
     let after = Instant::now();
@@ -39,6 +43,8 @@ pub async fn ping(ctx: &Context, msg: &Message) -> CommandResult {
 
 #[command]
 pub async fn ban(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+    msg.channel_id.delete_message(&ctx.http.as_ref(), msg.id).await.expect("Failed to delete message");
+
     if args.is_empty() {
         msg.reply(&ctx, "You need to mention someone to ban!").await?;
     }
@@ -69,6 +75,8 @@ pub async fn ban(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult 
 
 #[command]
 pub async fn kick(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+    msg.channel_id.delete_message(&ctx.http.as_ref(), msg.id).await.expect("Failed to delete message");
+
     if args.is_empty() {
         msg.reply(&ctx, "You need to mention someone to ban!").await?;
     }
@@ -92,6 +100,8 @@ pub async fn kick(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult
 
 #[command]
 pub async fn help(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+    msg.channel_id.delete_message(&ctx.http.as_ref(), msg.id).await.expect("Failed to delete message");
+
     if args.is_empty() {
         msg
             .channel_id
@@ -106,7 +116,8 @@ pub async fn help(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
                                 ("!kick", "Kick mentioned member", false),
                                 ("!mute", "Add the muted role to the mentioned member", false),
                                 ("!unmute", "Remove the muted role to the mentioned member", false),
-                                ("!ping", "Show the bot's ping", false)
+                                ("!ping", "Show the bot's ping", false),
+                                ("!say <message>", "Say the message", false),
                             ])
                             .footer(|f| f.text("©️ HeavensBot 2022"))
                             .timestamp(chrono::Utc::now())
@@ -142,11 +153,12 @@ pub async fn help(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
             .send_message(&ctx.http, |m| {
                 m.content("")
                     .embed(|e| {
-                        e.title("All HeavensBot's moderation commands")
+                        e.title("All HeavensBot's general commands")
                             .description("This is a description")
                             .fields(vec![
                                 ("!help [mod | general]", "Show this message", false),
-                                ("!ping", "Show the bot's ping", false)
+                                ("!ping", "Show the bot's ping", false),
+                                ("!say <message>", "Say the message", false),
                             ])
                             .footer(|f| f.text("©️ HeavensBot 2022"))
                             .timestamp(chrono::Utc::now())
@@ -164,6 +176,8 @@ pub async fn help(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 
 #[command]
 pub async fn mute(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+    msg.channel_id.delete_message(&ctx.http.as_ref(), msg.id).await.expect("Failed to delete message");
+
     if args.is_empty() {
         msg.reply(&ctx, "You need to mention someone to mute!").await?;
     } else {
@@ -194,6 +208,8 @@ pub async fn mute(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult
 
 #[command]
 pub async fn unmute(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+    msg.channel_id.delete_message(&ctx.http.as_ref(), msg.id).await.expect("Failed to delete message");
+
     if args.is_empty() {
         msg.reply(&ctx, "You need to mention someone to unmute!").await?;
     } else {
@@ -216,6 +232,19 @@ pub async fn unmute(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
         ctx.http.remove_member_role(u64::from(guild_id), user_id, u64::from(*role_id.expect("Failed to get role"))).await.expect("Failed to remove role");
 
         msg.reply(&ctx, format!("<@!{}> has been unmuted", user_id)).await?;
+    }
+
+    Ok(())
+}
+
+#[command]
+pub async fn say(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+    msg.channel_id.delete_message(&ctx.http.as_ref(), msg.id).await.expect("Failed to delete message");
+
+    if args.is_empty() {
+        msg.reply(&ctx, "You need to add a message that I should say.").await?;
+    } else {
+        msg.channel_id.send_message(&ctx.http, |m| m.content(args.message())).await.expect("Failed to send message");
     }
 
     Ok(())

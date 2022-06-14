@@ -2,8 +2,9 @@ mod commands;
 mod hook;
 mod group;
 
-use commands::*;
+// use commands::*;
 use hook::*;
+use group::*;
 
 use std::{
     collections::{HashMap, HashSet},
@@ -16,7 +17,6 @@ use serenity::{
     client::bridge::gateway::{GatewayIntents, ShardManager},
     framework::standard::{
         buckets::{LimitedFor},
-        macros::group,
         DispatchError,
         StandardFramework,
     },
@@ -51,14 +51,6 @@ impl EventHandler for Handler {
     }
 }
 
-#[group]
-#[commands(avatar, ping, help)]
-struct General;
-
-#[group]
-#[commands(ban, kick, mute, unmute)]
-struct Mod;
-
 fn _dispatch_error_no_macro<'fut>(
     ctx: &'fut mut Context,
     msg: &'fut Message,
@@ -79,7 +71,7 @@ fn _dispatch_error_no_macro<'fut>(
 
 #[tokio::main]
 async fn main() {
-    let token = "token";
+    let token = "Nzg1NTYzNDQwMjA1NzkxMjMy.Gp5_GM.qnZGBD-2GYhuryfZlGWH4fwDxf6HljisFzZtwg";
     let http = Http::new_with_token(&token);
 
     let (owners, bot_id) = match http.get_current_application_info().await {

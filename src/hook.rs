@@ -24,7 +24,7 @@ pub async fn after(_ctx: &Context, _msg: &Message, command_name: &str, command_r
 
 #[hook]
 pub async fn unknown_command(_ctx: &Context, _msg: &Message, _unknown_command_name: &str) {
-
+    println!("Unknown command");
 }
 
 #[hook]
